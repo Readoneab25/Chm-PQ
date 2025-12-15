@@ -1,0 +1,781 @@
+
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CHM 101 PQ INTERACTIVE QUIZ</title>
+  <style>
+    :root{--bg:#0f172a;--card:#111827;--accent:#06b6d4;--muted:#94a3b8;--white:#e6eef6}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;background:linear-gradient(180deg,#071022 0%, #071a2a 100%);color:var(--white);-webkit-font-smoothing:antialiased}
+    .wrap{max-width:920px;margin:28px auto;padding:20px}
+    header{display:flex;align-items:center;gap:16px}
+    h1{margin:0;font-size:20px}
+    .meta{color:var(--muted);font-size:13px}
+    .card{background:rgba(255,255,255,0.03);padding:20px;border-radius:12px;margin-top:18px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+    .question{font-size:18px;margin-bottom:12px}
+    .choices{display:flex;flex-direction:column;gap:8px}
+    .choice{background:#072031;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+    .choice:hover{transform:translateY(-2px)}
+    .choice.selected{outline:3px solid rgba(6,182,212,0.12);background:#2babff}
+    .controls{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+    button{background:var(--accent);color:#042029;border:0;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--white)}
+    .progress{height:10px;background:rgba(255,255,255,0.04);border-radius:999px;overflow:hidden}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#60a5fa);width:0%}
+    .footer{margin-top:16px;color:var(--muted);font-size:13px}
+    .result{padding:18px;border-radius:10px;background:linear-gradient(180deg, rgba(2,6,23,0.85), rgba(2,6,23,0.6));}
+    .review{margin-top:12px}
+    .q-review{background:rgba(255,255,255,0.02);padding:12px;border-radius:8px;margin-bottom:10px}
+    @media(max-width:560px){.wrap{padding:12px}h1{font-size:18px}.question{font-size:16px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>CHM 101 INTERACTIVE PQ QUIZ</h1>
+        <div class="meta">116 multiple-choice questions </div>
+      </div>
+    </header><div class="card" id="quiz-card">
+  <div class="progress" aria-hidden><i id="progress-bar"></i></div>
+  <div style="height:14px"></div>
+  <div id="q-area">
+    </div>
+
+  <div class="controls">
+    <div style="display:flex;gap:8px">
+      <button id="prevBtn" class="secondary">Previous</button>
+      <button id="nextBtn">Next</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="submitBtn" class="secondary">Submit</button>
+      <div style="color:var(--muted);font-size:13px">Q <span id="q-num">1</span> / <span id="q-total">10</span></div>
+    </div>
+  </div>
+
+  <div class="footer">Tip: Select an answer and press Next. You can review answers after submission.</div>
+</div>
+
+<div id="result-area" style="display:none" class="card">
+  <div class="result">
+    <h2 id="score-title"></h2>
+    <p id="score-summary" class="meta"></p>
+  </div>
+  <div class="review" id="review-list"></div>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <button id="retryBtn">Retake Quiz</button>
+    <button id="exportBtn" class="secondary">Export Results</button>
+  </div>
+</div>
+<br><br><br>
+  <a href="https://wa.me/+2349036795652"><button>Contact The Developer</button></a>
+    <a href="https://wa.me/+2349036795652"><button>Support Project</button></a><br><br>
+   <button onclick="shareOnWhatsApp()">Share Quiz link via WhatsApp</button>
+  <h2>Designed by Readone</h2>
+  </div>
+   <script>
+      // CHM101_QUESTIONS
+const QUESTIONS = [
+  {
+    q: "According to Dalton's law of partial pressure, the total pressure of a gas mixture is equal to:",c:
+    ["Difference in partial pressures", "Sum of partial pressures", "Product of partial pressures", "Average pressure"],
+    a: 1,
+  },
+  {
+    q: "Two electrons occupying the same orbital must have different:",c:
+    ["Spin quantum numbers", "Principal quantum numbers", "Azimuthal quantum numbers", "Magnetic quantum numbers"],
+    a: 0,
+  },
+  {
+    q: "The ground state of an atom corresponds to the state of:",c:
+    ["Maximum energy", "Minimum energy", "Excited energy", "Unstable energy"],
+    a: 1,
+  },
+  {
+    q: "The two electrons in the first shell differ in the value of:",c:
+    ["Spin quantum number (s)", "Magnetic quantum number (m)", "Principal quantum number (n)", "Azimuthal quantum number (l)"],
+    a: 0,
+  },
+  {
+    q: "Which of the following is the strongest acid?",c:
+    ["HF", "HCl", "HBr", "HI"],
+    a: 3,
+  },
+  {
+    q: "What is the steric number (SN) of ammonia (NH₃)?",c:
+    ["2", "3", "4", "5"],
+    a: 2,
+  },
+  {
+    q: "How many lone pairs are present on the central atom of SF₄?",c:
+    ["0", "1", "2", "3"],
+    a: 1,
+  },
+  {
+    q: "What is the molecular geometry of PF₅?",c:
+    ["Trigonal pyramidal", "Octahedral", "Trigonal planar", "Trigonal bipyramidal"],
+    a: 3,
+  },
+  {
+    q: "In the Lewis structure of PF₃, how many lone pairs are on the central atom?",c:
+    ["0", "1", "2", "3"],
+    a: 1,
+  },
+  {
+    q: "When sodium bicarbonate dissolves in water, the resulting solution is:",c:
+    ["Acidic", "Basic", "Neutral", "Amphoteric"],
+    a: 1,
+  },
+  {
+    q: "What is the steric number (SN) of boron trifluoride (BF₃)?",c:
+    ["2", "3", "4", "5"],
+    a: 1,
+  },
+  {
+    q: "What is the steric number of a molecule that has 3 atoms bonded to the central atom and 2 lone pairs of electrons?",c:
+    ["3", "4", "5", "6"],
+    a: 2,
+  },
+  {
+    q: "What does the principal quantum number (n) represent?",c:
+    ["Orbital shape", "Energy level or shell", "Electron spin", "Magnetic orientation"],
+    a: 1,
+  },
+  {
+    q: "What does the azimuthal quantum number (l) represent?",c:
+    ["Orbital shape", "Energy level", "Electron spin", "Magnetic orientation"],
+    a: 0,
+  },
+  {
+    q: "How many valence electrons are in the third shell of Calcium (Ca)?",c:
+    ["0", "2", "8", "4"],
+    a: 0,
+  },
+  {
+    q: "Atoms with the same isotopes possess what?",c:
+    ["Different neutrons", "Same neutrons", "Different protons", "Same protons (atomic number)"],
+    a: 3,
+  },
+  {
+    q: "Identify the odd one out in terms of molecular geometry: S₂O, N₂O, and CO₂.",c:
+    ["S₂O", "N₂O", "CO₂", "None of the above"],
+    a: 0,
+  },
+  {
+    q: "Isobars are atoms with:",c:
+    ["The same atomic number but different mass number", "The same mass number but different atomic number", "Different mass number and atomic number", "The same atomic structure"],
+    a: 1,
+  },
+  {
+    q: "101 kPa pressure of gas occupies 1 m³ at 303 K. If the temperature increases to 600 K with a constant amount of gas, what will be the new volume of the gas?",c:
+    ["1.98 m³", "2.01 m³", "3.00 m³", "2.45 m³"],
+    a: 0,
+  },
+  {
+    q: "Arrange the following orbitals in the correct order of increasing energy based on the Aufbau principle: 1s², 2s², 2p⁶, 3s², 3p⁶, 4s², 4p⁶, 4d¹⁰",c:
+    ["1s → 2s → 2p → 3s → 3p → 4s → 4p → 4d", "1s → 2s → 2p → 3s → 4s → 3p → 4p → 4d", "1s → 2p → 2s → 3p → 3s → 4s → 4d → 4p", "1s → 2s → 3s → 3p → 2p → 4s → 4p → 4d"],
+    a: 0,
+  },
+  {
+    q: "A salt formed from a weak acid and a strong base will have a:",c:
+    ["pH less than 7 (Acidic)", "pH greater than 7 (Basic)", "Neutral pH", "Unstable pH"],
+    a: 1,
+  },
+  {
+    q: "Hydrolysis refers to:",c:
+    ["Breaking of bonds by addition of water", "Formation of bonds by removal of water", "Dissolution of salts in water", "Breaking of ions in a solution"],
+    a: 0,
+  },
+  {
+    q: "The VSEPR theory helps to determine:",c:
+    ["The shape of molecules", "The strength of bonds", "The reactivity of elements", "The energy levels of electrons"],
+    a: 0,
+  },
+  {
+    q: "Which of these is not true about gas?",c:
+    ["Gas has a definite shape", "Gas has no definite shape", "Gas has no definite volume", "Gas fills its container completely"],
+    a: 0,
+  },
+  {
+    q: "What is the steric number (SN) of methane (CH₄)?",c:
+    ["2", "3", "4", "5"],
+    a: 2,
+  },
+  {
+    q: "The charge-to-mass ratio of positive particles varies with the nature of the:",c:
+    ["Metal used in the discharge tube", "Gas placed in the discharge tube", "Both (A) and (B)", "None of the above"],
+    a: 1,
+  },
+  {
+    q: "According to Brønsted-Lowry, an acid is a:",c:
+    ["Proton donor", "Electron acceptor", "Proton acceptor", "Electron donor"],
+    a: 0,
+  },
+  {
+    q: "The F subshell can hold a maximum of ___ electrons.",c:
+    ["10", "14", "6", "2"],
+    a: 1,
+  },
+  {
+    q: "If the number of lone pairs is 0 and there are 2 atoms bonded to the central atom, what is the Steric Number (SN)?",c:
+    ["1", "2", "3", "4"],
+    a: 1,
+  },
+  {
+    q: "Arrange s, p, d, f in increasing order of the maximum number of electrons they can hold.",c:
+    ["s < p < d < f (2 < 6 < 10 < 14)", "f < d < p < s", "d < s < p < f", "p < f < d < s"],
+    a: 0,
+  },
+  {
+    q: "Pauli's exclusion principle states that two electrons can occupy the same orbital only if their direction of spin is:",c:
+    ["Parallel", "Opposite", "Random", "The same"],
+    a: 1,
+  },
+  {
+    q: "Heisenberg's Uncertainty principle states that:",c:
+    ["It is impossible to know both the exact position and momentum (or velocity) of a particle simultaneously", "It is impossible to know the mass and charge of a particle simultaneously", "Electrons always travel in fixed paths", "Electrons cannot exist in the nucleus"],
+    a: 0,
+  },
+  {
+    q: "Isotopes have ___ atomic number but ___ mass number.",c:
+    ["Same, different", "Different, same", "Same, same", "Different, different"],
+    a: 0,
+  },
+  {
+    q: "Which of the following contains no neutrons?",c:
+    ["Protium (¹H)", "Tritium (³H)", "Deuterium (²H)", "None of these"],
+    a: 0,
+  },
+  {
+    q: "The maximum number of electrons that can be accommodated in an orbit (shell) is:",c:
+    ["2n", "2n+1", "n²", "2n²"],
+    a: 3,
+  },
+  {
+    q: "What is the steric number (SN) and the number of lone pairs on the central atom of boron trifluoride (BF₃)?",c:
+    ["4, 1", "0, 3", "3, 0", "3, 1"],
+    a: 2,
+  },
+  {
+    q: "Find the Steric Number (SN) of a molecule having two atoms bonded to the central atom, which has three lone pairs.",c:
+    ["3", "5", "6", "4"],
+    a: 1,
+  },
+  {
+    q: "What is the molecular geometry of water (H₂O)?",c:
+    ["Linear", "Bent (or V-shaped)", "Trigonal planar", "Tetrahedral"],
+    a: 1,
+  },
+  {
+    q: "What is the shape of formaldehyde (CH₂O)?",c:
+    ["Tetrahedral", "Trigonal planar", "Linear", "Bent"],
+    a: 1,
+  },
+  {
+    q: "What is the molecular geometry of silane (SiH₄)?",c:
+    ["Bent", "Tetrahedral", "Trigonal planar", "Linear"],
+    a: 1,
+  },
+  {
+    q: "An orbital is defined as:",c:
+    ["A fixed path of electrons around the nucleus", "A region in an atom where the probability of finding an electron is high", "The distance between the nucleus and the outermost shell", "The energy associated with an electron in an atom"],
+    a: 1,
+  },
+  {
+    q: "How can the pressure on a gas be increased without increasing the volume?",c:
+    ["Increase temperature", "Decrease the number of particles", "Increase the container size", "None of the above"],
+    a: 0,
+  },
+  {
+    q: "Calculate the steric number (SN) of SO₂.",c:
+    ["2", "3", "4", "5"],
+    a: 1,
+  },
+  {
+    q: "What is the property of an element that is a whole number?",c:
+    ["Atomic radius", "Atomic number", "Atomic volume", "Atomic mass"],
+    a: 1,
+  },
+  {
+    q: "If the value of Azimuthal Quantum Number (l) is 2, how many values are there for the Magnetic Quantum Number (m_l)?",c:
+    ["3", "4", "5", "2"],
+    a: 2,
+  },
+  {
+    q: "Which one has lower energy between Square Pyramidal and Trigonal Pyramidal geometry?",c:
+    ["None", "Both", "Square Pyramidal", "Trigonal Pyramidal"],
+    a: 3,
+  },
+  {
+    q: "What is the shape of phosphine (PH₃)?",c:
+    ["Linear", "Tetrahedral", "Trigonal pyramidal", "Bent"],
+    a: 2,
+  },
+  {
+    q: "What is the bond angle for a molecule with a trigonal pyramidal geometry?",c:
+    ["120°", "180°", "Around 107°", "109.5°"],
+    a: 2,
+  },
+  {
+    q: "What is the molecular geometry and bond angle of CH₄?",c:
+    ["90°, Linear", "109.5°, Tetrahedral", "120°, Trigonal planar", "180°, Linear"],
+    a: 1,
+  },
+  {
+    q: "What property is responsible for the strong reaction of acids?",c:
+    ["Concentration", "Molecular size", "Density", "Ability to donate H⁺ ions"],
+    a: 3,
+  },
+  {
+    q: "Which is the strongest acid among the oxyacids of chlorine?",c:
+    ["HClO (Hypochlorous acid)", "HClO₂ (Chlorous acid)", "HClO₃ (Chloric acid)", "HClO₄ (Perchloric acid)"],
+    a: 3,
+  },
+  {
+    q: "The likelihood of finding an electron on the nodal plane that separates the two lobes of the p orbital is:",c:
+    ["Nil (Zero)", "Minimum", "Maximum", "Infinite"],
+    a: 0,
+  },
+  {
+    q: "Which gas is produced when most active metals react with acids?",c:
+    ["Oxygen", "Hydrogen", "Carbon dioxide", "Nitrogen"],
+    a: 1,
+  },
+  {
+    q: "What is the pH of a neutral solution at 25°C?",c:
+    ["0", "7", "14", "10"],
+    a: 1,
+  },
+  {
+    q: "Which equation represents the Ideal Gas Law?",c:
+    ["PV=nRT", "P+R=nT", "PV=RT", "V/T=P/n"],
+    a: 0,
+  },
+  {
+    q: "Two nuclei, A and B, have mass numbers of 15 and 16, respectively. If the number of protons in A is 7, what is the number of protons in B, assuming they are an isobar pair?",c:
+    ["6", "5", "8", "9"],
+    a: 2,
+  },
+  {
+    q: "Which of the following have different atomic numbers but the same number of neutrons?",c:
+    ["Isomers", "Isotones", "Isobars", "Isotopes"],
+    a: 1,
+  },
+  {
+    q: "Carbon(IV) oxide (CO₂) has what molecular geometry?",c:
+    ["Linear", "Tetrahedral", "Trigonal pyramidal", "Octahedral"],
+    a: 0,
+  },
+  {
+    q: "How many lone pairs are on the central atom of SO₂?",c:
+    ["0", "1", "2", "3"],
+    a: 1,
+  },
+  {
+    q: "What gas law is involved when a balloon pops after being sat on (Pressure increases, Volume decreases)?",c:
+    ["Charles's Law", "Boyle's Law", "Avogadro's Law", "Dalton's Law"],
+    a: 1,
+  },
+  {
+    q: "Why is pressure exerted by gases on the walls of the container in all directions?",c:
+    ["Random motion of gas molecules", "Constant volume", "Temperature uniformity", "Molecular bonds"],
+    a: 0,
+  },
+  {
+    q: "The H–C–H bond angle in methane (CH₄) is:",c:
+    ["90°", "109.5°", "120°", "180°"],
+    a: 1,
+  },
+  {
+    q: "Which of the following species have the same molecular geometry: CO₂, O₃, SO₂?",c:
+    ["CO₂ and O₃", "CO₂ and SO₂", "O₃ and SO₂", "None"],
+    a: 2,
+  },
+  {
+    q: "When nitric acid (HNO₃) reacts with potassium hydroxide (KOH), what salt is formed?",c:
+    ["Potassium nitrate (KNO₃)", "Sodium nitrate", "Potassium hydroxide", "Ammonium nitrate"],
+    a: 0,
+  },
+  {
+    q: "Arrange the following oxyacids of chlorine in order of increasing acidic strength: HOCl, HOClO₂, HOClO₃, HClO₄.",c:
+    ["HOCl < HOClO₂ < HOClO₃ < HClO₄", "HClO₄ < HOClO₃ < HOClO₂ < HOCl", "HOClO₃ < HOCl < HOClO₂ < HClO₄", "HOCl < HClO₄ < HOClO₂ < HOClO₃"],
+    a: 0,
+  },
+  {
+    q: "Who proposed stationary orbits for electrons in the atom?",c:
+    ["Rutherford", "Bohr", "Planck", "Dalton"],
+    a: 1,
+  },
+  {
+    q: "The second electron affinity is always:",c:
+    ["Positive (endothermic)", "Negative (exothermic)", "Neutral", "Zero"],
+    a: 0,
+  },
+  {
+    q: "What is the unit for electron affinity?",c:
+    ["Joules per mole (J/mol)", "Kilojoules (kJ)", "Coulombs", "Volts"],
+    a: 0,
+  },
+  {
+    q: "Which of the following is not an acidic salt?",c:
+    ["CH₃COONa", "NaHSO₄", "KHS", "Na₂SO₄"],
+    a: 0,
+  },
+  {
+    q: "The conversion of a solid directly to a gaseous form is called:",c:
+    ["Sublimation", "Evaporation", "Condensation", "Deposition"],
+    a: 0,
+  },
+  {
+    q: "What is the accepted formula for the hydrogen ion in an aqueous acid solution?",c:
+    ["H⁺ (Proton)", "H₃O⁺ (Hydronium ion)", "H₂⁺", "H₄O⁺"],
+    a: 1,
+  },
+  {
+    q: "What is the correct sequence of steps for determining molecular geometry?",c:
+    ["Molecular Geometry → Steric Number → Lewis Structure → Shape", "Shape → Molecular Geometry → Steric Number → Lewis Structure", "Lewis Structure → Steric Number → Molecular Geometry → Shape", "Molecular Geometry → Steric Number → Lewis Structure → Shape"],
+    a: 2,
+  },
+  {
+    q: "What quantum number explains the shape of atomic orbitals?",c:
+    ["Principal quantum number (n)", "Azimuthal quantum number (l)", "Magnetic quantum number (m_l)", "Spin quantum number (m_s)"],
+    a: 1,
+  },
+  {
+    q: "What is the Steric Number (SN) and number of lone pairs on the central atom in H₂O?",c:
+    ["3; 2", "4; 3", "4; 2", "2; 4"],
+    a: 2,
+  },
+  {
+    q: "Which one has the lowest energy between trigonal bipyramidal and square planar geometry?",c:
+    ["Trigonal bipyramidal", "Square planar", "Both have the same energy", "None of the above"],
+    a: 0,
+  },
+  {
+    q: "What is the azimuthal quantum number (l) for the last electron in an isolated N atom?",c:
+    ["0", "3", "1", "2"],
+    a: 2,
+  },
+  {
+    q: "What is the Steric Number (SN) and lone pair electrons on the central atom of N₂O?",c:
+    ["1, 3", "0, 3", "3, 1", "3, 0"],
+    a: 3,
+  },
+  {
+    q: "If a gas has a volume of 6.982 L and pressure of 8.532 atm at 20.20°C, what is the new temperature when the pressure increases to 10.406 atm (assuming volume is constant)?",c:
+    ["24. something", "89. something", "32. something", "None of the above"],
+    a: 2,
+  },
+  {
+    q: "The sodium atom (Na) has Mass Number (M) = 23 and Proton Number (P) = 11. What is the neutron number (N)?",c:
+    ["It is less than the proton number (N < 11)", "It is equal to the number of protons (N = 11)", "No option", "The neutron number is greater than the proton number (N > 11)"],
+    a: 3,
+  },
+  {
+    q: "Which energy level is increasing in order: 4s, 3d, 4p?",c:
+    ["4s < 3d < 4p", "3d < 4s < 4p", "4p < 4s < 3d", "3d < 4p < 4s"],
+    a: 0,
+  },
+  {
+    q: "What are alkalis?",c:
+    ["Acids that aren't soluble in water", "Bases that aren't soluble in water", "Acids that are soluble in water", "Bases that are soluble in water"],
+    a: 3,
+  },
+  {
+    q: "The total pressure of the mixture of 8.0 g of oxygen (O₂) and 14 g of nitrogen (N₂) in a container is 750 mmHg. What is the partial pressure of oxygen?",c:
+    ["125 mmHg", "135 mmHg", "500 mmHg", "250 mmHg"],
+    a: 3,
+  },
+  {
+    q: "Examples of strong acids are:",c:
+    ["HCl, H₂SO₄, HNO₃", "H₂CO₃, HClO₄, H₃PO₄", "H₂S, HF, HNO₂", "NH₃, H₂SO₃, HCl"],
+    a: 0,
+  },
+  {
+    q: "If the temperature is kept constant, what is required to increase the pressure of gas in a container?",c:
+    ["Increase the volume", "Decrease the volume", "Add more gas molecules", "Both B and C"],
+    a: 3,
+  },
+  {
+    q: "Which of the following pairs are isobars?",c:
+    ["¹⁴C and ¹⁴N", "⁴⁰Ca and ⁴⁰Ar", "³⁹K and ⁴⁰Ca", "¹⁶O and ¹⁸O"],
+    a: 1,
+  },
+  {
+    q: "Which of the following pairs are isotones?",c:
+    ["¹⁴C and ¹⁴N", "¹⁵N and ¹⁶O", "⁴⁰Ca and ⁴⁰Ar", "³⁹K and ⁴⁰Ca"],
+    a: 1,
+  },
+  {
+    q: "The electron affinity of an atom _____ across a period.",c:
+    ["Decreases", "Increases", "Remains constant", "Oscillates"],
+    a: 1,
+  },
+  {
+    q: "Why does CO₂ have a linear geometry while SO₂ is bent?",c:
+    ["CO₂ has no lone pairs on the central atom, while SO₂ does", "CO₂ has double bonds, while SO₂ has single bonds", "CO₂ has a smaller steric number than SO₂", "CO₂ forms tetrahedral bonds, while SO₂ forms trigonal planar bonds"],
+    a: 0,
+  },
+  {
+    q: "What is the steric number and bond angle of H₂O?",c:
+    ["3, 104.5°", "4, 109.5°", "2, 180°", "4, 120°"],
+    a: 1,
+  },
+  {
+    q: "What would be the geometry of a compound where the central atom has two atoms bonded to it and three lone pairs?",c:
+    ["Linear", "Tetrahedral", "Trigonal bipyramidal", "Bent"],
+    a: 0,
+  },
+  {
+    q: "What are the maximum numbers of electrons in the s, p, d, and f subshells, respectively?",c:
+    ["2, 6, 10, 14", "1, 4, 9, 16", "2, 8, 18, 32", "4, 12, 18, 24"],
+    a: 0,
+  },
+  {
+    q: "If 500 mL of gas occupy a pressure of 0.971 atm, what is the new volume if it occupies a pressure of 1.50 atm (at constant temperature)?",c:
+    ["324 mL", "485 mL", "650 mL", "725 mL"],
+    a: 0,
+  },
+  {
+    q: "What is the molecular geometry and bond angle of BF₃?",c:
+    ["Trigonal bipyramidal, 120°", "Octahedral, 109.5°", "Trigonal planar, 120°", "Trigonal bipyramidal, 180°"],
+    a: 2,
+  },
+  {
+    q: "A subatomic particle with 1 unit mass and a positive charge is:",c:
+    ["Neutron", "Proton", "Electron", "Meson"],
+    a: 1,
+  },
+  {
+    q: "Calculate the Steric Number (SN) of CO₂ using VSEPR theory.",c:
+    ["2", "3", "4", "5"],
+    a: 0,
+  },
+  {
+    q: "At constant temperature and pressure, if the volume is doubled, what happens to the number of moles?",c:
+    ["Halved", "Doubled", "Quadrupled", "Constant"],
+    a: 1,
+  },
+  {
+    q: "What is the order of increasing energy of the subshells?",c:
+    ["p < s < d < f", "s > p > d > f", "f < d < p < s", "s < p < d < f"],
+    a: 3,
+  },
+  {
+    q: "Which of the following is the least acidic (weakest acid)?",c:
+    ["H₂Se", "HI", "HF", "HBr"],
+    a: 2,
+  },
+  {
+    q: "What turns phenolphthalein indicator pink?",c:
+    ["HCl (Acid)", "H₂SO₄ (Acid)", "CO₂ (Acidic oxide)", "KOH (Base/Alkali)"],
+    a: 3,
+  },
+  {
+    q: "Atoms which have different neutron numbers are known as:",c:
+    ["Isotones", "Isotopes", "Isobars", "Isometric"],
+    a: 1,
+  },
+  {
+    q: "Which principle states that no two electrons in an atom can have the same set of four quantum numbers?",c:
+    ["Aufbau's principle", "Pauli's exclusion principle", "Hund's rule", "Octet rule"],
+    a: 1,
+  },
+  {
+    q: "Why do we use Lewis structures?",c:
+    ["To calculate mass", "To determine molecular geometry", "To measure energy levels", "To understand nuclear reactions"],
+    a: 1,
+  },
+  {
+    q: "What is the shape of H₂S using VSEPR theory?",c:
+    ["Linear", "Trigonal planar", "Bent", "Tetrahedral"],
+    a: 2,
+  },
+  {
+    q: "Which of these salts gives a neutral solution when dissolved in water?",c:
+    ["CH₃COONa (Basic)", "NaCN (Basic)", "NH₄Cl (Acidic)", "KBr (Neutral)"],
+    a: 3,
+  },
+  {
+    q: "Nitrogen (N) has 3 unpaired electrons. The direction of their spins are:",c:
+    ["Parallel (Same)", "Equal", "Similar", "Different"],
+    a: 0,
+  },
+  {
+    q: "Which of the following species are isoelectronic with Cl⁻?",c:
+    ["K⁺", "S²⁻", "P³⁻", "All of the above"],
+    a: 3,
+  },
+  {
+    q: "The amount of energy needed to remove a single loosely bound electron from an atom of the element is:",c:
+    ["Electron affinity", "Electronegativity", "Ionization energy", "None of the above"],
+    a: 2,
+  },
+  {
+    q: "When an electron is added to an atom to form an anion, there is:",c:
+    ["Loss of energy (Release of energy)", "Gain of energy (Absorption of energy)", "No change in energy", "Release of photons"],
+    a: 0,
+  },
+  {
+    q: "Al³⁺ and Na⁺ are:",c:
+    ["Isotopes", "Isotones", "Isobars", "Isoelectronic"],
+    a: 3,
+  },
+  {
+    q: "⁴⁰K and ⁴⁰Ca are:",c:
+    ["Isobars", "Isotones", "Isotopes", "Isoelectronic"],
+    a: 0,
+  },
+  {
+    q: "The next orbital to be filled after the 4p orbital is:",c:
+    ["5s", "4d", "4f", "3d"],
+    a: 0,
+  },
+  {
+    q: "The orbital having the _____ number of (n+l) will have _____ energy.",c:
+    ["Lower, higher", "Higher, lower", "Higher, higher", "Lower, lower"],
+    a: 2,
+  },
+  {
+    q: "Oxygen (O) has _____ unpaired electrons.",c:
+    ["1", "2", "3", "4"],
+    a: 1,
+  },
+  {
+    q: "A given mass of gas has a volume of 2000 mL at 1.6 atm. If the pressure is reduced to 1.3 atm (at constant temperature), the volume will be:",c:
+    ["1625 mL", "2462 mL", "2000 mL", "3000 mL"],
+    a: 1,
+  },
+  {
+    q: "Identify the basic salt:",c:
+    ["NaNO₃ (Neutral)", "Na₂CO₃ (Basic)", "KCl (Neutral)", "NH₄Cl (Acidic)"],
+    a: 1,
+  },
+  {
+    q: "Which of the following explains why SO₃ and BF₃ have different numbers of bonds but the same geometry?",c:
+    ["Both have the same number of atoms", "Both have different central atoms", "Both have the same steric number (SN)", "Both are planar molecules"],
+    a: 2,
+  }
+];
+       
+       
+       function shareOnWhatsApp() {
+        const message = "https://https://readoneab25.github.io/Bio-101-ecology-cell/";
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = "whatsapp://send?text=" + encodedMessage;
+        window.open(whatsappUrl, '_blank');
+    }
+    
+   
+       
+    let state = { idx:0, answers: Array(QUESTIONS.length).fill(null) };
+const total = QUESTIONS.length;
+
+function renderQuestion(){
+  const area = document.getElementById('q-area');
+  const q = QUESTIONS[state.idx];
+  document.getElementById('q-num').textContent = state.idx+1;
+  document.getElementById('q-total').textContent = total;
+  const progress = Math.round((state.idx/total)*100);
+  document.getElementById('progress-bar').style.width = progress + '%';
+
+  area.innerHTML = '';
+  const qEl = document.createElement('div');
+  qEl.innerHTML = `<div class="question">${state.idx+1}. ${q.q}</div>`;
+  const choices = document.createElement('div'); choices.className='choices';
+  q.c.forEach((choice, i)=>{
+    const btn = document.createElement('div');
+    btn.className='choice'; btn.tabIndex=0; btn.textContent = String.fromCharCode(65+i)+'. '+choice;
+    if(state.answers[state.idx]===i) btn.classList.add('selected');
+    btn.addEventListener('click', ()=>{
+      // select
+      state.answers[state.idx]=i;
+      document.querySelectorAll('.choice').forEach(el=>el.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    choices.appendChild(btn);
+  });
+  qEl.appendChild(choices);
+  area.appendChild(qEl);
+}
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(state.idx < total-1) state.idx++;
+  renderQuestion();
+});
+
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  if(state.idx > 0) state.idx--;
+  renderQuestion();
+});
+
+document.getElementById('submitBtn').addEventListener('click', ()=>{
+  // confirm and grade
+  const unanswered = state.answers.filter(a=>a===null).length;
+  if(unanswered>0){
+    if(!confirm(`You have ${unanswered} unanswered questions. Submit anyway?`)) return;
+  }
+  gradeQuiz();
+});
+
+function gradeQuiz(){
+  let correct=0;
+  const review = [];
+  for(let i=0;i<total;i++){
+    const user = state.answers[i];
+    const correctIdx = QUESTIONS[i].a;
+    const ok = user===correctIdx;
+    if(ok) correct++;
+    review.push({i, q:QUESTIONS[i].q, choices:QUESTIONS[i].c, user, correctIdx, ok});
+  }
+  showResult(correct, review);
+}
+
+function showResult(score, review){
+  document.getElementById('quiz-card').style.display='none';
+  const area = document.getElementById('result-area');
+  area.style.display='block';
+  const title = document.getElementById('score-title');
+  title.textContent = `You scored ${score} out of ${total}`;
+  const pct = Math.round((score/total)*100);
+  document.getElementById('score-summary').textContent = `Percentage: ${pct}%`;
+
+  const list = document.getElementById('review-list'); list.innerHTML='';
+  review.forEach(item=>{
+    const div = document.createElement('div'); div.className='q-review';
+    const head = document.createElement('div'); head.style.fontWeight='700'; head.textContent = `${item.i+1}. ${item.q}`;
+    const userAns = document.createElement('div'); userAns.style.marginTop='6px';
+    const ua = item.user===null? 'No answer' : String.fromCharCode(65+item.user)+'. '+item.choices[item.user];
+    const ca = String.fromCharCode(65+item.correctIdx)+'. '+item.choices[item.correctIdx];
+    userAns.innerHTML = `<div><strong>Your answer:</strong> ${ua}</div><div style="margin-top:4px"><strong>Correct answer:</strong> ${ca}</div>`;
+    if(item.ok) userAns.style.color='lightgreen'; else userAns.style.color='#fca5a5';
+    div.appendChild(head); div.appendChild(userAns);
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('retryBtn').addEventListener('click', ()=>{
+  // reset
+  state = { idx:0, answers: Array(total).fill(null) };
+  document.getElementById('result-area').style.display='none';
+  document.getElementById('quiz-card').style.display='block';
+  renderQuestion();
+});
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const data = {answers: state.answers, questions: QUESTIONS};
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'cos101_module1-2_results.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+});
+
+// init
+renderQuestion();
+</script>
+
+
+</body>
+</html
